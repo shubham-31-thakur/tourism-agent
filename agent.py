@@ -107,20 +107,50 @@
 #     test_query = "Tell me about Jaipur attractions"
 #     print(route_query(test_query))
 
+# from openai import OpenAI
+
+# agent_endpoint = "https://hkuuczxyqrmn2xhh6nuslsfe.agents.do-ai.run/api/v1/"
+# agent_access_key = "NBt6OQaL36JMYM9Z_Zp5mMFpiV7iB8Kp"
+
+# client = OpenAI(base_url=agent_endpoint, api_key=agent_access_key)
+
+# def tourism_agent(query, system_prompt):
+#     """
+#     Calls the Gradient AI Tourism Agent endpoint with:
+#     - user query
+#     - system instructions (prompt)
+#     """
+#     response = client.chat.completions.create(
+#         model="n/a",
+#         messages=[
+#             {"role": "system", "content": system_prompt},
+#             {"role": "user", "content": query}
+#         ],
+#         extra_body={"include_retrieval_info": True}
+#     )
+#     return response.choices[0].message.content
+
+
 from openai import OpenAI
 
-agent_endpoint = "https://hkuuczxyqrmn2xhh6nuslsfe.agents.do-ai.run/api/v1/"
-agent_access_key = "NBt6OQaL36JMYM9Z_Zp5mMFpiV7iB8Kp"
+# ================== CONFIGURE ENDPOINTS AND KEYS ==================
+tourism_endpoint = "https://hkuuczxyqrmn2xhh6nuslsfe.agents.do-ai.run/api/v1/"
+tourism_key = "NBt6OQaL36JMYM9Z_Zp5mMFpiV7iB8Kp"
 
-client = OpenAI(base_url=agent_endpoint, api_key=agent_access_key)
+travel_endpoint = "https://o75pkkvy3kdinounlafdgcyg.agents.do-ai.run"
+travel_key = "wwT7H_b8QFYhiFP-SSpN5xE9SYlWnm3U"
 
+weather_endpoint = "https://mikjwwxikevu6hy7z2zjsdqt.agents.do-ai.run"
+weather_key = "mH-Zor5Rxj_3BzsBfR9ohVLQtf1RYCEA"
+
+# ================== INITIALIZE CLIENTS ==================
+tourism_client = OpenAI(base_url=tourism_endpoint, api_key=tourism_key)
+travel_client = OpenAI(base_url=travel_endpoint, api_key=travel_key)
+weather_client = OpenAI(base_url=weather_endpoint, api_key=weather_key)
+
+# ================== AGENT FUNCTIONS ==================
 def tourism_agent(query, system_prompt):
-    """
-    Calls the Gradient AI Tourism Agent endpoint with:
-    - user query
-    - system instructions (prompt)
-    """
-    response = client.chat.completions.create(
+    response = tourism_client.chat.completions.create(
         model="n/a",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -129,3 +159,39 @@ def tourism_agent(query, system_prompt):
         extra_body={"include_retrieval_info": True}
     )
     return response.choices[0].message.content
+
+def travel_agent(query):
+    response = travel_client.chat.completions.create(
+        model="n/a",
+        messages=[{"role": "user", "content": query}],
+        extra_body={"include_retrieval_info": True}
+    )
+    return response.choices[0].message.content
+
+def weather_agent(query):
+    response = weather_client.chat.completions.create(
+        model="n/a",
+        messages=[{"role": "user", "content": query}],
+        extra_body={"include_retrieval_info": True}
+    )
+    return response.choices[0].message.content
+
+# ================== ROUTING FUNCTION ==================
+def route_query(user_query, system_prompt=None):
+    query = user_query.lower()
+
+    if any(word in query for word in ["weather", "rain", "temperature", "forecast"]):
+        return weather_agent(user_query)
+
+    elif any(word in query for word in ["travel", "transport", "flight", "bus", "train", "budget", "cost"]):
+        return travel_agent(user_query)
+
+    else:
+        # Default: Tourism Agent
+        if system_prompt is None:
+            system_prompt = """
+            You are a Tourism Agent specialized in Indian cities.
+            Answer questions about tourist attractions, entry fees, timings, and highlights.
+            Respond in JSON or short text depending on the user query.
+            """
+        return tourism_agent(user_query, system_prompt)
