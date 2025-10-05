@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+jinja2
+# Optional: add packages your agent logic uses (e.g. requests, pyyaml)
