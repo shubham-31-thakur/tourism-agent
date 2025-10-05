@@ -1,0 +1,280 @@
+﻿<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tourism Agent</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        input, button { padding: 10px; margin-top: 10px; width: 80%; }
+        .response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Indian Tourism Agent</h1>
+    <form method="post">
+        <input type="text" name="user_query" placeholder="Ask about any Indian city..." required>
+        <br>
+        <button type="submit">Ask</button>
+    </form>
+
+    
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Indian Tourism Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#f6fbff;
+            --overlay-opacity:0.45;
+            --card:#ffffff;
+            --muted:#6b7280;
+            --accent:#0ea5a4; /* teal */
+            --accent-2:#0f172a; /* dark */
+            --glass: rgba(255,255,255,0.6);
+            --shadow: 0 6px 18px rgba(12,34,56,0.08);
+            --radius:12px;
+            font-synthesis: none;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                /* Background image with subtle gradient overlay for readability.
+                    Use static/img1.png as a fallback so opening the file directly (file://)
+                    also shows the background. When served via FastAPI templates/index.html
+                    the template will resolve the image path via url_for. */
+                --bg-image: url('static/img1.png');
+                background:
+                     linear-gradient(rgba(240,247,255,var(--overlay-opacity)), rgba(246,251,255,var(--overlay-opacity))),
+                     var(--bg-image);
+            background-size: cover, cover;
+            background-position: center center, center center;
+            background-repeat: no-repeat, no-repeat;
+            background-attachment: fixed;
+            color:var(--accent-2);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            padding:28px;
+        }
+        .wrap{max-width:980px;margin:0 auto}
+        header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .brand{display:flex;align-items:center;gap:12px}
+        .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow)}
+        h1{margin:0;font-size:1.25rem}
+        p.lead{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
+
+        main{margin-top:18px;display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start}
+        @media (max-width:880px){main{grid-template-columns:1fr}}
+
+    .card{background:rgba(255,255,255,0.96);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;backdrop-filter: blur(6px);border:1px solid rgba(15,23,42,0.06)}
+
+        form .field{display:flex;flex-direction:column;margin-bottom:12px}
+        label{font-size:0.9rem;margin-bottom:6px;color:var(--accent-2);font-weight:600}
+        textarea, input[type="text"]{width:100%;padding:12px;border-radius:10px;border:1px solid #e6eef7;background:transparent;font-size:0.95rem;resize:vertical}
+        textarea{min-height:120px}
+        .controls{display:flex;gap:10px;align-items:center}
+
+        button.primary{background:var(--accent);color:white;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;box-shadow:0 6px 14px rgba(14,165,164,0.18)}
+        button.ghost{background:transparent;border:1px solid #e6eef7;padding:9px 12px;border-radius:10px;cursor:pointer;color:var(--accent-2)}
+        button:disabled{opacity:0.6;cursor:not-allowed}
+
+        .response-area{white-space:pre-wrap;background:linear-gradient(180deg,#fbfeff,#ffffff);padding:16px;border-radius:10px;border:1px solid #eef6fb}
+        .response-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .muted{color:var(--muted);font-size:0.9rem}
+    h1,h2,h3{color:var(--accent-2)}
+    h1,h2{ text-shadow: 0 1px 0 rgba(255,255,255,0.6) }
+
+        .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--accent);animation:spin 1s linear infinite;display:inline-block}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        footer{margin-top:20px;text-align:center;color:var(--muted);font-size:0.85rem}
+    /* Welcome modal */
+    .modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(6,22,34,0.6);z-index:1000;opacity:0;pointer-events:none;transition:opacity .18s ease}
+    .modal-overlay.show{opacity:1;pointer-events:auto}
+    .modal{background:var(--card);padding:18px;border-radius:12px;max-width:620px;width:92%;box-shadow:var(--shadow);text-align:left;transform:translateY(12px);opacity:0;transition:transform .22s ease,opacity .22s ease}
+    .modal-overlay.show .modal{transform:translateY(0);opacity:1}
+    .modal h2{margin:0 0 6px;font-size:1.1rem}
+    .modal p{margin:0 0 12px;color:var(--muted)}
+    .modal .actions{display:flex;gap:8px;align-items:center}
+    .modal .small{font-size:0.88rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+    .modal input[type="checkbox"]{width:16px;height:16px}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <div class="logo">TI</div>
+                <div>
+                    <h1>Indian Tourism Agent</h1>
+                    <p class="lead">Ask about cities, attractions, best times to visit and travel tips.</p>
+                </div>
+            </div>
+            <div class="actions" style="align-items:center;display:flex;gap:10px">
+                <div class="muted">Built for friendly travel guidance</div>
+                <button class="ghost" id="showWelcomeBtn" title="Show welcome message">Welcome</button>
+                <button class="ghost" id="overlayToggle" title="Toggle overlay" aria-pressed="false">Overlay: Light</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="card">
+                <form method="post" id="agentForm">
+                    <div class="field">
+                        <label for="agent_prompt">Agent instructions (optional)</label>
+                        <textarea id="agent_prompt" name="agent_prompt" placeholder="Enter agent instructions here..." rows="5"></textarea>
+                        <small class="muted">Use this to guide the assistant's tone or behavior (e.g. "focus on family-friendly activities").</small>
+                    </div>
+
+                    <div class="field">
+                        <label for="user_query">Your question</label>
+                        <input id="user_query" name="user_query" type="text" placeholder="Ask about any Indian city, landmark or travel need..." required>
+                    </div>
+
+                    <div class="controls">
+                        <button type="submit" class="primary" id="submitBtn">
+                            <span id="btnText">Ask</span>
+                            <span id="btnSpinner" style="display:none;margin-left:8px" aria-hidden="true" class="spinner"></span>
+                        </button>
+                        <button type="button" class="ghost" id="sampleBtn">Try sample</button>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="card">
+                <h3 style="margin-top:0">Response</h3>
+                
+                <div class="muted">No response yet. Ask a question to see results here.</div>
+                
+            </aside>
+        </main>
+
+        <footer>
+            Tip: Try "Best time to visit Jaipur for a family trip" or add instructions to narrow results.
+        </footer>
+    </div>
+
+    <!-- Welcome modal (active) -->
+    <div class="modal-overlay" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+        <div class="modal" role="document">
+            <h2 id="welcomeTitle">Welcome to Indian Tourism Agent</h2>
+            <p>Explore Indian cities, top attractions, travel tips and packing advice. This small tool helps you get quick, friendly travel guidance tailored to your needs.</p>
+            <p class="small">What you can try: ask about best time to visit, family-friendly itineraries, local food tips, or packing lists for different regions.</p>
+
+            <div class="actions" style="margin-top:12px">
+                <button class="primary" id="modalOk">Let&#39;s go</button>
+                <button class="ghost" id="modalClose">Close</button>
+                <label class="small" style="margin-left:auto"><input type="checkbox" id="dontShow"> Don&#39;t show again</label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhance UX: show spinner on submit and provide a few sample prompts
+        (function(){
+            const form = document.getElementById('agentForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const responseText = document.getElementById('responseText');
+
+            if(form){
+                form.addEventListener('submit', function(){
+                    submitBtn.disabled = true;
+                    btnText.textContent = 'Thinking...';
+                    btnSpinner.style.display = 'inline-block';
+                });
+            }
+
+            if(sampleBtn){
+                sampleBtn.addEventListener('click', function(){
+                    const q = document.getElementById('user_query');
+                    const samples = [
+                        'Top attractions in Varanasi for cultural travelers',
+                        'Best time to visit Ladakh and what to pack',
+                        'Family friendly activities in Goa for 3 days',
+                        'Food and safety tips for Delhi street food'
+                    ];
+                    q.value = samples[Math.floor(Math.random()*samples.length)];
+                    q.focus();
+                });
+            }
+
+            if(copyBtn && responseText){
+                copyBtn.addEventListener('click', async function(){
+                    try{
+                        await navigator.clipboard.writeText(responseText.innerText || responseText.textContent);
+                        copyBtn.textContent = 'Copied';
+                        setTimeout(()=> copyBtn.textContent = 'Copy',1500);
+                    }catch(e){
+                        console.warn('copy failed',e);
+                        copyBtn.textContent = 'Copy (select)';
+                    }
+                });
+            }
+
+            // Welcome modal logic
+            try{
+                const modal = document.getElementById('welcomeModal');
+                const modalOk = document.getElementById('modalOk');
+                const modalClose = document.getElementById('modalClose');
+                const dontShow = document.getElementById('dontShow');
+                const hideModal = ()=> modal && modal.classList.remove('show');
+                const showModal = ()=> modal && modal.classList.add('show');
+
+                // configurable via Jinja: welcome_delay and welcome_storage_key
+                const storageKey = "dontShowWelcome";
+                const delay = parseInt("400", 10) || 400;
+
+                const lsAvailable = (()=>{
+                    try{ const k='__t'; localStorage.setItem(k,k); localStorage.removeItem(k); return true }catch(e){return false}
+                })();
+                const disabled = lsAvailable && localStorage.getItem(storageKey);
+                if(modal && !disabled){
+                    // show after a short delay to avoid visual jump
+                    setTimeout(()=> showModal(), delay);
+                }
+
+                if(modalOk) modalOk.addEventListener('click', function(){
+                    if(dontShow && dontShow.checked && lsAvailable) localStorage.setItem(storageKey,'1');
+                    hideModal();
+                });
+                if(modalClose) modalClose.addEventListener('click', function(){
+                    hideModal();
+                });
+                const showWelcomeBtn = document.getElementById('showWelcomeBtn');
+                if(showWelcomeBtn){
+                    showWelcomeBtn.addEventListener('click', function(){
+                        // always show when manually requested
+                        showModal();
+                    });
+                }
+            }catch(e){console.warn('modal init failed',e)}
+        })();
+        // Overlay toggle for standalone page
+        (function(){
+            try{
+                const toggle = document.getElementById('overlayToggle');
+                const LIGHT = 'light', DARK = 'dark';
+                const values = { light: '0.45', dark: '0.7' };
+                function apply(mode){
+                    const v = values[mode] || values.light;
+                    document.documentElement.style.setProperty('--overlay-opacity', v);
+                    if(toggle){ toggle.textContent = 'Overlay: ' + (mode==='dark' ? 'Dark' : 'Light'); toggle.setAttribute('aria-pressed', mode==='dark'); }
+                }
+                const stored = localStorage.getItem('overlayMode') || LIGHT;
+                apply(stored);
+                if(toggle){ toggle.addEventListener('click', ()=>{ const next = (localStorage.getItem('overlayMode')||LIGHT) === LIGHT ? DARK : LIGHT; localStorage.setItem('overlayMode', next); apply(next); }); }
+            }catch(e){/* ignore */}
+        })();
+    </script>
+</body>
+</html>
